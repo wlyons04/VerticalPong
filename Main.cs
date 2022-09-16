@@ -18,11 +18,8 @@ namespace PongCSH
 
         private Texture2D texture;
 
-        private Vector2 leftPaddlePos;
-        private Rectangle leftPaddleRect;
-
-        private Vector2 ballPos;
-        private Rectangle ballRect;
+        private Ball ball;
+        private Paddle leftPaddle;
 
         public Main()
         {
@@ -40,11 +37,8 @@ namespace PongCSH
         {
             // TODO: Add your initialization logic here
 
-            leftPaddlePos = new Vector2(20, 310);
-            leftPaddleRect = new Rectangle((int)leftPaddlePos.X, (int)leftPaddlePos.Y, 12, 100);
-
-            ballPos = new Vector2((WINDOW_WIDTH / 2) - 7, (WINDOW_HEIGHT / 2) - 7);
-            ballRect = new Rectangle((int)ballPos.X, (int)ballPos.Y, 14, 14);
+            ball = new Ball((WINDOW_WIDTH / 2) - 7, (WINDOW_HEIGHT / 2) - 7, 14, 14);
+            leftPaddle = new Paddle(20, 310, 12, 100);
             
 
             base.Initialize();
@@ -71,14 +65,25 @@ namespace PongCSH
 
             if (kbState.IsKeyDown(Keys.W))
             {
-                leftPaddlePos.Y -= (float)(PADDLE_SPEED * gameTime.ElapsedGameTime.TotalSeconds);
+                leftPaddle.dy = -PADDLE_SPEED;
             }
-            if (kbState.IsKeyDown(Keys.S))
+            else if (kbState.IsKeyDown(Keys.S))
             {
-                leftPaddlePos.Y += (float)(PADDLE_SPEED * gameTime.ElapsedGameTime.TotalSeconds);
+                leftPaddle.dy = PADDLE_SPEED;
+            }
+            else
+            {
+                leftPaddle.dy = 0;
             }
 
-            leftPaddleRect.Y = (int)leftPaddlePos.Y;
+
+            if (ball.rect.Intersects(leftPaddle.rect))
+            {
+                ball.dx = -ball.dx;
+            }
+
+            ball.Update(gameTime.ElapsedGameTime.TotalSeconds);
+            leftPaddle.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
@@ -91,8 +96,8 @@ namespace PongCSH
 
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(texture, leftPaddleRect, Color.White);
-            _spriteBatch.Draw(texture, ballRect, Color.White);
+            _spriteBatch.Draw(texture, leftPaddle.rect, Color.White);
+            _spriteBatch.Draw(texture, ball.rect, Color.White);
 
             _spriteBatch.End();
 
