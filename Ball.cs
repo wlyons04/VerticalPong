@@ -9,13 +9,15 @@ namespace PongCSH
     {
 
         public Vector2 pos;
-        public float dx;
-        public float dy;
+        public float xVelo;
+        public float yVelo;
         public Rectangle rect;
+
+
         public Ball(int x, int y, int width, int height)
         {
-            dx = 100;
-            dy = 100;
+            xVelo = 100;
+            yVelo = 100;
             rect = new Rectangle(x, y, width, height);
             pos = new Vector2(x, y);
 
@@ -23,31 +25,22 @@ namespace PongCSH
 
         public void Update(double deltaTime)
         {
-            pos.X += (float)(dx * deltaTime);
+            pos.X += (float)(xVelo * deltaTime);
             rect.X = (int)pos.X;
 
-            pos.Y += (float)(dy * deltaTime);
+            pos.Y += (float)(yVelo * deltaTime);
             rect.Y = (int)pos.Y;
 
-            //Collision walls
-            if (pos.Y < 0)
-            {
-                dy = -dy;
-            }
-            if (pos.Y > 706)
-            {
-                dy = -dy;
-            }
-            if (pos.X < 0)
-            {
-                dx = -dx;
-            }
-            if (pos.X > 1263)
-            {
-                dx = -dx;
-            }
+        }
+
+
+        public void Draw(SpriteBatch spriteBatch, Texture2D texture)
+        {
+
+            spriteBatch.Draw(texture, rect, Color.White);
 
         }
+
 
     }
 }
