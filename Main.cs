@@ -12,18 +12,22 @@ namespace PongCSH
     {
         private GraphicsDeviceManager _graphics;
 
+        //Resolution settings
         private const int WINDOW_HEIGHT = 720;
         private const int WINDOW_WIDTH = 1280;
-        private const int PADDLE_SPEED = 175;
 
+        //Paddle settings
+        private const int PADDLE_SPEED = 175;
         private const int PADDLE_LENGTH = 80;
         private const int PADDLE_WIDTH = 12;
-
-        private const int BALL_X = (WINDOW_WIDTH / 2) - 7;
-        private const int BALL_Y = (WINDOW_HEIGHT / 2) - 7;
-        private const int PADDLE_Y = (WINDOW_HEIGHT / 2) - PADDLE_LENGTH/2;
+        private const int PADDLE_Y = (WINDOW_HEIGHT / 2) - PADDLE_LENGTH / 2;
         private const int LEFT_GAP = 20;
         private const int RIGHT_GAP = WINDOW_WIDTH - 30;
+
+        //Ball settings
+        private const int BALL_X = (WINDOW_WIDTH / 2) - 7;
+        private const int BALL_Y = (WINDOW_HEIGHT / 2) - 7;
+
 
         private SpriteBatch _spriteBatch;
 
@@ -42,16 +46,21 @@ namespace PongCSH
             Start,
             Play,
             Menu
-        
         }
 
-        State myState;
+        private State currentState;
 
-        int scoreP1;
-        int scoreP2;
-        int servingPlayer;
+        private int scoreP1;
+        private int scoreP2;
+        private int servingPlayer;
 
+        private bool multiplayer;
 
+        private int hoverButton;
+
+        private string title, button1, button2, button3;
+
+        private KeyboardState previousKB, currentKB;
 
         public Main()
         {
@@ -74,13 +83,25 @@ namespace PongCSH
 
 
             textures[0] = whiteTexture;
-            font = Content.Load<SpriteFont>("fonts");
 
-            myState = State.Start;
+            previousKB = Keyboard.GetState();
+            currentKB = Keyboard.GetState();
+
+            //currentState = State.Start;
+            currentState = State.Menu;
 
             scoreP1 = 0;
             scoreP2 = 0;
             servingPlayer = 1;
+
+            multiplayer = false;
+
+            hoverButton = 0;
+
+            title = "Pong";
+            button1 = "Single-player";
+            button2 = "Multiplayer";
+            button3 = "Quit";
 
             rng = new Random();
 
@@ -93,6 +114,7 @@ namespace PongCSH
 
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new Color[] { Color.White });
+            font = Content.Load<SpriteFont>("fonts");
 
             // TODO: use this.Content to load your game content here
         }
@@ -108,13 +130,58 @@ namespace PongCSH
 
             KeyboardState kbState = Keyboard.GetState();
 
+            currentKB = Keyboard.GetState();
 
-            if (myState == State.Start)
+
+            //Menu State
+            if (currentState == State.Menu)
+            {
+                if (currentKB.IsKeyDown(Keys.Enter))
+                {
+                    switch (hoverButton)
+                    { 
+                        case 0:
+                            currentState = State.Start;
+                            break;
+
+                        case 1:
+                            currentState = State.Start;
+                            multiplayer = true;
+                            break;
+
+                        case 2:
+                            Exit();
+                            break;
+
+                    
+                    }
+
+                }
+
+
+                if (previousKB.IsKeyUp(Keys.Up) && currentKB.IsKeyDown(Keys.Up))
+                {
+                    hoverButton--;
+
+                    if (hoverButton < 0) hoverButton = 0;
+                }
+
+                if (previousKB.IsKeyUp(Keys.Down) && currentKB.IsKeyDown(Keys.Down))
+                {
+                    hoverButton++;
+
+                    if (hoverButton > 2) hoverButton = 2;
+                }
+
+            }
+
+            //Start State
+            if (currentState == State.Start)
             {
 
-                if (kbState.IsKeyDown(Keys.Space))
+                if (currentKB.IsKeyDown(Keys.Space))
                 {
-                    myState = State.Play;
+                    currentState = State.Play;
 
                     ball.yVelo = rng.Next(-175, 176);
 
@@ -131,16 +198,16 @@ namespace PongCSH
                 }
             }
 
-
-            if (myState == State.Play)
+            //Play State
+            if (currentState == State.Play)
             {
 
                 //player1 input
-                if (kbState.IsKeyDown(Keys.W))
+                if (currentKB.IsKeyDown(Keys.W))
                 {
                     player1.yVelo = -PADDLE_SPEED;
                 }
-                else if (kbState.IsKeyDown(Keys.S))
+                else if (currentKB.IsKeyDown(Keys.S))
                 {
                     player1.yVelo = PADDLE_SPEED;
                 }
@@ -149,43 +216,57 @@ namespace PongCSH
                     player1.yVelo = 0;
                 }
 
-                //paddles reaching edge of screens
-                if (player1.pos.Y < 0)
+                if (multiplayer)
                 {
-                    player1.pos.Y = 0;
+                    //player2 input
+                    if (currentKB.IsKeyDown(Keys.Up))
+                    {
+                        player2.yVelo = -PADDLE_SPEED;
+                    }
+                    else if (currentKB.IsKeyDown(Keys.Down))
+                    {
+                        player2.yVelo = PADDLE_SPEED;
+                    }
+                    else
+                    {
+                        player2.yVelo = 0;
+                    }
                 }
-                if (player1.pos.Y > 640)
+                else
                 {
-                    player1.pos.Y = 640;
-                }
-                if (player2.pos.Y < 0)
-                {
-                    player2.pos.Y = 0;
-                }
-                if (player2.pos.Y > 640)
-                {
-                    player2.pos.Y = 640;
+                    //player2 chases ball
+                    if (ball.pos.Y > player2.pos.Y)
+                    {
+                        player2.yVelo = 150;
+                    }
+
+                    if (ball.pos.Y < player2.pos.Y)
+                    {
+                        player2.yVelo = -150;
+                    }
+
                 }
 
 
-                //player2 chases ball
-                if (ball.pos.Y > player2.pos.Y)
-                {
-                    player2.yVelo = 100;
-                }
-
-                if (ball.pos.Y < player2.pos.Y)
-                { 
-                    player2.yVelo = -100;
-                }
+                //make sure paddles stay on screen
+                CheckPaddles(player1.pos.Y, player2.pos.Y);
 
 
                 //ball hits paddle
                 if (ball.rect.Intersects(player1.rect) || ball.rect.Intersects(player2.rect))
                 {
                     ball.xVelo = -ball.xVelo;
-                    ball.xVelo = ball.xVelo * 1.1f;
-                    ball.yVelo = ball.yVelo * 1.1f;
+                    ball.xVelo = ball.xVelo * 1.05f;
+
+                    if (ball.yVelo < 0)
+                    {
+                        ball.yVelo = -rng.Next(100, 200);
+                    }
+                    else
+                    {
+                        ball.yVelo = rng.Next(100, 200);
+                    }
+
 
                 }
 
@@ -207,7 +288,7 @@ namespace PongCSH
 
                     scoreP2++;
                     servingPlayer = 1;
-                    Reset();
+                    ResetPlay();
                 }
 
                 //right wall
@@ -216,7 +297,7 @@ namespace PongCSH
 
                     scoreP1++;
                     servingPlayer = 2;
-                    Reset();
+                    ResetPlay();
                 }
 
 
@@ -227,12 +308,10 @@ namespace PongCSH
 
 
 
-
-
-
-            
+            previousKB = currentKB;
             base.Update(gameTime);
         }
+
 
         protected override void Draw(GameTime gameTime)
         {
@@ -243,13 +322,49 @@ namespace PongCSH
             _spriteBatch.Begin();
 
 
-            player1.Draw(_spriteBatch, whiteTexture);
-            player2.Draw(_spriteBatch, whiteTexture);
-            ball.Draw(_spriteBatch, whiteTexture);
+            if (currentState == State.Menu)
+            {
+                GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.DrawString(font, myState.ToString(), new Vector2(50, 50), Color.White);
-            _spriteBatch.DrawString(font, scoreP1.ToString(), new Vector2(550, 50), Color.White);
-            _spriteBatch.DrawString(font, scoreP2.ToString(), new Vector2(700, 50), Color.White);
+                _spriteBatch.DrawString(font, title, new Vector2(500, 75), Color.White);
+
+                switch (hoverButton)
+                {
+                    case 0:
+                        _spriteBatch.DrawString(font, button1, new Vector2(500, 300), Color.Orange);
+                        _spriteBatch.DrawString(font, button2, new Vector2(500, 450), Color.White);
+                        _spriteBatch.DrawString(font, button3, new Vector2(500, 600), Color.White);
+                        break;
+
+                    case 1:
+                        _spriteBatch.DrawString(font, button1, new Vector2(500, 300), Color.White);
+                        _spriteBatch.DrawString(font, button2, new Vector2(500, 450), Color.Orange);
+                        _spriteBatch.DrawString(font, button3, new Vector2(500, 600), Color.White);
+                        break;
+                    case 2:
+                        _spriteBatch.DrawString(font, button1, new Vector2(500, 300), Color.White);
+                        _spriteBatch.DrawString(font, button2, new Vector2(500, 450), Color.White);
+                        _spriteBatch.DrawString(font, button3, new Vector2(500, 600), Color.Orange);
+                        break;
+
+                }
+
+            }
+
+            if (currentState == State.Start || currentState == State.Play)
+            {
+                GraphicsDevice.Clear(Color.Black);
+
+                _spriteBatch.DrawString(font, currentState.ToString(), new Vector2(50, 50), Color.White);
+                _spriteBatch.DrawString(font, scoreP1.ToString(), new Vector2(550, 50), Color.White);
+                _spriteBatch.DrawString(font, scoreP2.ToString(), new Vector2(700, 50), Color.White);
+
+                player1.Draw(_spriteBatch, whiteTexture);
+                player2.Draw(_spriteBatch, whiteTexture);
+                ball.Draw(_spriteBatch, whiteTexture);
+
+            }
+
 
             _spriteBatch.End();
 
@@ -257,7 +372,12 @@ namespace PongCSH
         }
 
 
-        private void Reset()
+
+
+
+
+
+        private void ResetPlay()
         {
             ball.pos.X = BALL_X;
             ball.pos.Y = BALL_Y;
@@ -267,7 +387,29 @@ namespace PongCSH
             player1.pos.Y = PADDLE_Y;
             player2.pos.Y = PADDLE_Y;
 
-            myState = State.Start;
+            currentState = State.Start;
+        }
+
+        private void CheckPaddles(float paddleY1, float paddleY2)
+        {
+            //paddles reaching edge of screens
+            if (paddleY1 < 0)
+            {
+                player1.pos.Y = 0;
+            }
+            if (paddleY1 > 640)
+            {
+                player1.pos.Y = 640;
+            }
+            if (paddleY2 < 0)
+            {
+                player2.pos.Y = 0;
+            }
+            if (paddleY2 > 640)
+            {
+                player2.pos.Y = 640;
+            }
+
         }
 
     }
