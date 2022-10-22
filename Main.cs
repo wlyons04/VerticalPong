@@ -12,9 +12,6 @@ namespace PongCSH
         private GraphicsDeviceManager _graphics;
 
         //Resolution settings
-        //private const int WINDOW_HEIGHT = 720;
-        //private const int WINDOW_WIDTH = 1280;
-
         private const int WINDOW_HEIGHT = 980;
         private const int WINDOW_WIDTH = 420;
 
@@ -34,12 +31,14 @@ namespace PongCSH
 
         private SpriteBatch _spriteBatch;
 
+        //Textures and fonts
         private Texture2D[] textures = new Texture2D[1];
         private Texture2D whiteTexture;
         private SpriteFont fontLarge;
         private SpriteFont fontMedium;
         private SpriteFont fontSmall;
 
+        //Sound effects
         private SoundEffect bounce;
         private SoundEffect hit;
         private SoundEffect score;
@@ -68,8 +67,10 @@ namespace PongCSH
 
         private int winAmount;
 
+        //if playing in one or two player mode
         private bool multiplayer;
 
+        //which button is hovered; Ex: top button hovered, hoverButton = 0
         private int hoverButtonMenu;
         private int hoverButtonWin;
 
@@ -268,9 +269,9 @@ namespace PongCSH
             //Play State
             if (currentState == State.Play)
             {
+
                 //player1 input
                 if (currentKB.IsKeyDown(Keys.A))
-
                 {
                     player1.xVelo = -PADDLE_SPEED;
                 }
@@ -304,12 +305,12 @@ namespace PongCSH
                     //player2 chases ball
                     if (ball.pos.X > player2.pos.X)
                     {
-                        player2.xVelo = 150;
+                        player2.xVelo = PADDLE_SPEED;
                     }
 
                     if (ball.pos.X < player2.pos.X)
                     {
-                        player2.xVelo = -150;
+                        player2.xVelo = -PADDLE_SPEED;
                     }
 
                 }
@@ -507,7 +508,9 @@ namespace PongCSH
 
         private void CheckPaddles(float paddleX1, float paddleX2)
         {
+
             int right = WINDOW_WIDTH - PADDLE_LENGTH;
+
             //paddles reaching edge of screens
             if (paddleX1 < 0)
             {

@@ -21,8 +21,6 @@ namespace PongCSH
 
         public void Update(double deltaTime)
         {
-            //pos.Y += (float)(yVelo * deltaTime);
-            //rect.Y = (int)pos.Y;
 
             pos.X += (float)(xVelo * deltaTime);
             rect.X = (int)pos.X;
