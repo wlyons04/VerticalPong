@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PongCSH", "PongCSH.csproj", "{ED84E8DA-EA8A-4D92-866B-8B9C2415B98E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VerticalPong", "VerticalPong.csproj", "{ED84E8DA-EA8A-4D92-866B-8B9C2415B98E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30D9635C-F3FD-4F38-A345-9019BF39B62F}"
 EndProject

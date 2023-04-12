@@ -2,18 +2,16 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace PongCSH
+namespace VerticalPong
 {
     internal class Paddle
     {
         public Vector2 pos;
         public Rectangle rect;
-        //public float yVelo;
         public float xVelo;
 
         public Paddle(int x, int y, int width, int height)
         {
-            //yVelo = 0;
             xVelo = 0;
             rect = new Rectangle(x, y, width, height);
             pos = new Vector2(x, y);

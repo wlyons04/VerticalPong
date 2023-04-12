@@ -1,3 +1,3 @@
 ﻿
-using var game = new PongCSH.Main();
+using var game = new VerticalPong.Main();
 game.Run();
